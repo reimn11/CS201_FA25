@@ -65,7 +65,7 @@ Explanation:
 This gives you access to packages/libraries, which are like custom/specialized tools so that you can do more with R.
 
 ```{r}
-# install.packages("tidyverse")
+#install.packages("tidyverse")
 library(tidyverse)
 ```
 
