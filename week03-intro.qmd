@@ -107,15 +107,28 @@ Start by exploring the data below. It's always good to ensure you understand wha
 
 ```{r}
 data(mtcars) # reads in the data & adds it to your environment as a dataframe
+
+mtcars <- mtcars %>% 
+  rownames_to_column("model")
+
 View(mtcars) # opens up the datafram for viewing
-head(mtcars) # displays the top few lines of the dataframe
+head(mtcars, - 10) # displays the top few lines of the dataframe
+tail(mtcars)
 summary(mtcars) # displays a summary of all variables
 ?mtcars # will open up documentation in your Help tab. works for packages, functions, too!
 ```
 
 -   How many rows and columns are in the dataframe?
+
+32 rows, 12 columns
+
 -   What variables look interesting?
+
+gear
+
 -   How might you view the last few rows of the dataframe with a single function?
+
+tail(mtcars)
 
 ------------------------------------------------------------------------
 
@@ -124,19 +137,20 @@ summary(mtcars) # displays a summary of all variables
 -   What is the average `mpg` overall?
 
 ```{r}
-mean(mtcars$mpg) # the $ helps you select a specific column of interest
+mean(mtcars$mpg) # the $ helps you select a specific column/variable of interest
 ```
 
 -   Can you find the mean of another variable?
 
 ```{r}
+mean(mtcars$wt)
 
 ```
 
 -   Can you find the median?
 
 ```{r}
-
+median(mtcars$qsec)
 ```
 
 ------------------------------------------------------------------------
@@ -156,10 +170,27 @@ plot(mtcars$wt, mtcars$mpg,
 
 ## Exit Ticket
 
-Create a scatterplot of two variables of your choice (but not `mpg` vs. `wt`). Feel free to try a `ggplot2` version if you have some R experience!
+Create a scatterplot and histogram and boxplot of two variables of your choice (but not `mpg` vs. `wt`). Feel free to try a `ggplot2` version if you have some R experience!
 
 ```{r}
 
+# Scatterplots
+plot(mtcars$mpg, mtcars$hp,
+    xlab = "Miles/(US) gallon", ylab = "Gross horsepower", 
+    main  = "Relationship between mpg and hp")
+?hist
+#histogram
+hist(mtcars$mpg,
+     main = "Relationship between mpg and hp",
+     xlab = "Miles/(US) gallon", ylab = "Gross horsepower")
+
+#boxplot
+boxplot(mtcars$mpg, mtcars$hp,
+        xlab = "Miles/(US) gallon", ylab = "Gross horsepower",
+        main  = "Relationship between mpg and hp")
+
+
+summary(mtcars$qsec)
 ```
 
 Save, stage, commit, and push to GitHub!!
