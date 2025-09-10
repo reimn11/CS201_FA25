@@ -179,7 +179,7 @@ plot(mtcars$mpg, mtcars$hp,
     xlab = "Miles/(US) gallon", ylab = "Gross horsepower", 
     main  = "Relationship between mpg and hp")
 ?hist
-#histogram
+#histogram 
 hist(mtcars$mpg,
      main = "Relationship between mpg and hp",
      xlab = "Miles/(US) gallon", ylab = "Gross horsepower")
