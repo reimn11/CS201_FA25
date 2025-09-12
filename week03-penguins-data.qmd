@@ -11,7 +11,7 @@ editor: visual
 ## Loading Libraries
 
 ```{r, message=FALSE}
-# install.packages("here") # makes for easier filepath management
+install.packages("here") # makes for easier filepath management
 # install.packages("palmerpenguins") # cool penguins data for exploration
 # install.packages("janitor") # facilitates data cleaning and exploration
 # install.packages("skimr") # gives us neat summaries to skim
@@ -71,7 +71,9 @@ Note that all of these methods of reading data in to R are *reproducible* meanin
 
 ```{r, message=FALSE}
 
+url_gentoo <- "https://pasta.lternet.edu/package/data/eml/knb-lter-pal/220/3/e03b43c924f226486f2f0ab6709d2381"
 
+gebtoo_data_from_url <- read_csv(url_gentoo)
 ```
 
 #### A Little Data Cleaning
@@ -122,6 +124,7 @@ The `skim()` function from the `skimr` package gives us a cool overview of the d
 
 ```{r, message=FALSE}
 skimr::skim(penguins_data)
+summary(penguins_data)
 ```
 
 ## Exercise 2
@@ -134,7 +137,11 @@ What other packages/functions do a similar thing?
 
 -   Type your answer(s) in bullet points below
 
-    -   
+    -   skimr
+
+    -   Hmics
+
+    -   sumarrytools
 
 -   Let's check out `DataExplorer`
 
@@ -174,9 +181,9 @@ The magic of `ggplot2` is simplicity and *customization* so let's customize, bas
 
 ```{r, message=FALSE}
 ggplot(data = penguins_data, aes(x = flipper_length_mm, fill = species)) +
-  geom_histogram() +
-  theme_bw() +
-  scale_fill_manual(values = c("darkorange","darkorchid","cyan4")) +
+  geom_histogram(alpha = 0.5) + ## can turn off the waring, waring = False
+  theme_bw() + ## theme black and wite
+  scale_fill_manual(values = c("darkorange","darkorchid","cyan4")) + ## chose the color, alphabeticry order
   labs(title = "Palmer Penguins, Distribution of Flipper Length",
        subtitle = "3 penguin species observed on three islands in the Palmer Archipelago, Antarctica",
        x = "Flipper Length (mm)",
@@ -217,7 +224,7 @@ ggplot(data = penguins_data, aes(x = species, y = flipper_length_mm, fill = spec
        x = "",
        y = "flipper length (mm)") + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1), legend.position = "none") +
-  coord_flip()
+  coord_flip() ## can flipable
 
 ```
 
@@ -231,7 +238,9 @@ ggplot(data = penguins_data, aes(x = flipper_length_mm, y = body_mass_g)) +
 Cool! Let's add species to this plot. What about island?
 
 ```{r, message=FALSE}
-
+ggplot(data = penguins_data, aes(x = flipper_length_mm, y = body_mass_g, color = species, shape = island)) +
+  geom_point()
+  
   
 ```
 
