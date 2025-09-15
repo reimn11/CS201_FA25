@@ -251,7 +251,14 @@ ggplot(data = penguins_data, aes(x = flipper_length_mm, y = body_mass_g, color =
     -   In the code chunk below create a **histogram** with `culmen_depth_mm` on the x axis and `color` by `species` using the dataframe *penguins_data*. Give the plot the theme: `theme_bw()`. Assign a color palette with `scale_fill_viridis_d()`. Give the plot a title, subtitile and custom x and y axis titles.
 
 ```{r, message=FALSE}
- 
+ggplot(data = penguins_data, aes(x = flipper_length_mm, fill = species)) +
+  geom_histogram() + ## can turn off the waring, waring = False
+  theme_bw() + ## theme black and wite
+  scale_fill_viridis_d() +
+  labs(title = "Palmer Penguins, Distribution of Clumen depth",
+       subtitle = "3 penguin species observed on three islands in the Palmer Archipelago, Antarctica",
+       x = "Culmen depth (mm)",
+       y = "Number of Penguins")
 ```
 
 -   Part 2
@@ -259,6 +266,15 @@ ggplot(data = penguins_data, aes(x = flipper_length_mm, y = body_mass_g, color =
     -   In the code chunk below create a **scatterplot** with `culmen_depth_mm` on the x axis, `body_mass_g` on the y axis, and `color` by `species` using the dataframe *penguins_data*. Give the plot the theme: `theme_bw()`. Assign a color palette with `scale_fill_viridis_d(option = "mako")`. Give the plot a title, subtitile and custom x and y axis titles.
 
 ```{r, message=FALSE}
+ggplot(data = penguins_data, aes(x = culmen_depth_mm, y = body_mass_g, color = species, shape = island)) +
+  geom_point() +
+  theme_bw() + scale_fill_viridis_d(option = "mako") +
+  labs(title = "Palmer Penguins, Distribution of Clumen depth",
+       subtitle = "3 penguin species observed on three islands in the Palmer Archipelago, Antarctica",
+       x = "Culmen depth (mm)",
+       y = "Bodymass (g)")
+  
+  
 
 ```
 
@@ -273,7 +289,7 @@ ggplot(data = penguins_data, aes(x = flipper_length_mm, y = body_mass_g, color =
         -   Run `ggplotly(plot_name)` and explore! Edit `plot_name` accordingly
 
 ```{r, message=FALSE}
-
+ggplotly(
 ```
 
 ## Push to GitHub!
