@@ -272,13 +272,19 @@ ggplot(diamonds, aes(x = cut, y = carat)) + # this is a violin plot
 
 -   Where do we see a lot of variability?
 
+    Fair cut show most variability if it include the outlier. If it doesn't put the outlier, Premium has a lot of variability.
+
 -   Is there a relationship between carat and cut?
+
+Diamonds with high cut grade, carat tend to have smaller carat size.
 
 -   Which category has the largest carat diamonds?
 
+The Fair cut category has the largest carat diamonds.
+
 #### Conclusions:
 
-The factor with the most influence on price is \_\_\_\_. There may be a trade-off between `carat` and `cut`. Perhaps larger carat diamonds can be profitably sold even with a low quality cut, for example.
+The factor with the most influence on price is \_carat\_\_\_. There may be a trade-off between `carat` and `cut`. Perhaps larger carat diamonds can be profitably sold even with a low quality cut, for example.
 
 We will stop here!
 
@@ -286,7 +292,7 @@ We will stop here!
 
 Which visualization type today felt most useful for you in spotting covariation, and why?
 
-Answer:
+Answer: For me a boxplot because it directly show the relationship between two variable price and carat. I could easily see the patterns and trends.
 
 ## For Fun
 
