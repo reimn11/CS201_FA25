@@ -30,23 +30,53 @@ Part 1 is worth a total of 1 point, and Part 2 is worth 4 points (1 point for ea
 ```{r, message=FALSE}
 library(tidyverse)
 
-mydata <- read_csv("data/your_dataset.csv")
+mydata <- read_csv("data/VNL2023.csv")
 
 ```
 
 ### Describe your data
 
-Data author:
+Data author: Yeganeh Bavafa
 
-Link:
+Link: <https://www.kaggle.com/datasets/yeganehbavafa/vnl-men-2023/data>
 
-Description:
+Description: He collected and sorted a dataset about volleyball players in Volleyball National League in 2023. In each factor, he have used the average of the player during a game, which was the author of errors, points and percentage of positive performance of that player in each section.
+
+-   Position Feature represent the real position of each player
+
+1.  OH : outside hitter
+
+2.  OP : Opposite hitter
+
+3.  MB : Middle blocker
+
+4.  S : Setter
+
+5.  L : Libero
+
+-   Attack : A player's overall average during each game in the offense factor
+
+-   Block : A player's overall average during each game in the defense factor.\
+    Defense on the net includes direct points, errors and touching the ball without changing points.
+
+-   Serve : Except for the libero player, the rest of the players serve during each turn to start the game. Each player's service average during the match is listed here.
+
+-   Set : The setter is responsible for setting the players. But in special cases, the rest of the players cooperate in this matter, and in the data analysis, we will find out which position the players have the most participation in setting after the setter.
+
+-   Set feature represent the average of successful sets, errors and attempts for each ball during a rally.
+
+-   Dig : the average of digs, errors and receptions
+
+-   Receive : Receive feature also represents the average of successful receptions, errors and attempts per mach.
 
 ### Preview your data
 
 Use some of the strategies you've learned in this class or picked up elsewhere to summarize and quickly explore your data.
 
 ```{r}
+library(dplyr)
+View(mydata)
+summary(mydata)
 
 ```
 
@@ -61,10 +91,115 @@ Before you make plots, you must also:
     -   `mean()`, `median()`, `sd()`, `min()`, `max()` for at least one numeric variable
 
 ```{r}
+# See how many people in each position
+mydata %>%
+    count(Position)
+# See how many peopke in each country
+mydata %>%
+  count(Country)
+# See how many peopke in each country
+mydata %>%
+  count(Age)
 
+
+# See the mean value of Age
+mean(mydata$Age)
+
+# See the mean value of Age each Position
+mydata %>%
+  group_by(Position) %>%
+  summarise(mean_age = mean(Age), na.rm = TRUE)
+
+#See the mean value of Attack in each country without Libero and Setter
+mydata %>%
+  filter(Position %in% c('OH', 'MB', "OP")) %>%
+  group_by(Country) %>%
+  summarise(mean_attack_country = mean(Attack, na.rm=TRUE)) %>%
+  arrange(mean_attack_country)
+
+#See the mean value of Attack in each age without Libero and Setter
+mydata %>%
+  filter(Position %in% c('OH', 'MB', "OP")) %>%
+  group_by(Age) %>%
+  summarise(mean_attack_age = mean(Attack, na.rm=TRUE)) %>%
+  arrange(mean_attack_age)
+  
+#See the mean value of Block in each country without Libero 
+mydata %>%
+  filter(Position != 'L') %>%
+  group_by(Country) %>%
+  summarise(mean_block_country = mean(Block, na.rm=TRUE)) %>%
+  arrange(mean_block_country)
+
+#See the mean value of Block in each age without Libero and Setter
+mydata %>%
+  filter(Position %in% c('OH', 'MB', "OP")) %>%
+  group_by(Age) %>%
+  summarise(mean_block_age = mean(Block, na.rm=TRUE)) %>%
+  arrange(mean_block_age)
+
+# See the mean value of Set in each country
+mydata %>%
+  filter(Position == 'S') %>%
+  group_by(Country) %>%
+  summarise(mean_set_country = mean(Set, na.rm=TRUE)) %>%
+  arrange(mean_set_country)
+
+# See the mean value of Set in each age
+mydata %>%
+  filter(Position == 'S') %>%
+  group_by(Age) %>%
+  summarise(mean_set_age = mean(Set, na.rm=TRUE)) %>%
+  arrange(mean_set_age)
+
+
+
+
+
+
+# See the median of Attack of each Position
+mydata %>%
+  group_by(Position) %>%
+  summarise(median_attack = median(Attack, na.rm = TRUE))
+
+# See the median of Dig of each Position
+mydata %>%
+  group_by(Position) %>%
+  summarise(median_dig = median(Dig, na.rm = TRUE)) %>%
+  arrange(desc(median_dig))
+
+# See the median value of Attack in each country without Libero and Setter
+mydata %>%
+  filter(Position %in% c('OH', 'MB', "OP")) %>%
+  group_by(Country) %>%
+  summarise(median_attack_country = median(Attack, na.rm=TRUE)) %>%
+  arrange(median_attack_country)
+
+
+
+# See the Satndard Deviation of Age
+sd(mydata$Age)
+
+
+# See the minimum of Age
+min(mydata$Age)
+
+# See the minimum rate of the Attack in each country without Libero and Setter
+mydata %>%
+  filter(Position %in% c('OH', 'MB', "OP")) %>%
+  group_by(Country) %>%
+  summarise(min_attack_country = min(Attack, na.rm = TRUE)) %>%
+  arrange(min_attack_country)
+  
+
+
+# See the max value of Age
+max(mydata$Age)
 ```
 
 Write 2–3 sentences here: What do the category counts tell you? What does the numeric summary show about spread, center, or outliers?
+
+The category counts show how players distributed. Outside Hitters are the most common position. And the numeric summaries reveal that setters (S) and liberos (L) tend to be older on average compared to attacking positions. When I see the Attack and Block by age, it shows wide variability, so it looks age doesn't reflect the their performance.
 
 ## Part 2:
 
@@ -72,9 +207,9 @@ Create **at least 4 plots**, each of a different type. At least one of your four
 
 Each plot should have:
 
--   A title and labeled axes
+-   A title and labeled axesy
 
--   A short interpretation (2-3 sentences) underneath
+-   y
 
 Use the EDA Part 3 notes as your reference. Since this is an EDA assignment, your plots can be plain, but consider adding colors, themes, or interactivity for interpretability and visual appeal if you know how.
 
@@ -82,6 +217,8 @@ Use the EDA Part 3 notes as your reference. Since this is an EDA assignment, you
 
 ```{r}
 # insert code here
+
+# try to see high attack, high block?
 
 ```
 
@@ -92,6 +229,7 @@ Interpretation:
 ```{r}
 # insert code here
 
+# see the set and attack
 ```
 
 Interpretation:
