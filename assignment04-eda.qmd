@@ -1,6 +1,6 @@
 ---
 title: "Assignment 4: Exploratory Data Analysis"
-author: "Amber Camp"
+author: "Rei Miyashiro"
 date: "`r Sys.Date()`"
 format: html
 editor: visual
@@ -217,42 +217,98 @@ Use the EDA Part 3 notes as your reference. Since this is an EDA assignment, you
 
 ```{r}
 # insert code here
+# See the set accuracy by each country
+mydata %>%
+  filter(Position == 'S') %>% # filternign to setters only
+  ggplot(aes(x = Set, y = fct_reorder(Country, Set, median))) +
+  geom_boxplot() +
+  labs(
+    title = "Set Distribution by Country (only Setters)",
+    x = "Set",
+    y = "Country"
+  )
 
-# try to see high attack, high block?
 
 ```
 
 Interpretation:
+
+I searched this competition's competition's standing. 1, USA 2, Japan 3, Poland 4, Italy 5, Argentina 6, Brazil ... High rank countries tend to have high set accuracy. In this plot, we can see 1, Argentina 2, Italy 3, USA 4, Japan 5, Brazil ... So, on the volleyball court, having a good setter in the team can be one of the most important aspects to win the game.
 
 ### Plot 2
 
 ```{r}
 # insert code here
 
-# see the set and attack
+# See the Serve distribution by position (excluding Libero)
+
+mydata %>%
+  filter(!Position %in% c("L")) %>% #Libero doesn't serve
+  group_by(Position) %>%
+  ggplot(aes(x = Position, y = Serve)) +
+  geom_violin() +
+  labs(
+    title = "Serve distribution by position (excluding Libero)",
+    x = "Position",
+    y = "Serve"
+  )
+
 ```
 
 Interpretation:
+
+OP has the widest and highest distribution of the Serve value. OH and MB are the mid-range. S shows the lowest Serve values and a relatively tight spread in this dataset. From my experience, MB, OH, and OP players tend to be of high height, so it can be an advantage for serving compared to the setter.
 
 ### Plot 3
 
 ```{r}
 # insert code here
 
-# attack by position
+# See mean attack by age
+mydata %>%
+  filter(Position %in% c('MB', 'OH', 'OP')) %>%
+  group_by(Age) %>%
+  summarize(mean_attack = mean(Attack)) %>%
+  ggplot(aes(x = Age, y = mean_attack)) +
+  geom_line() +
+labs(
+    title = "Mean Attack by age (excluding Libero(L) and Setter(S))",
+    x = "Age",
+    y = "Mean Attack"
+  )
+
 ```
 
 Interpretation:
+
+This summarizes the average Attack at each age for attackers(OH, OP, MB). The curve indicates that the relationship between age and attack is not simple. We can see the peak in the early 20s. On the contrary, some dips in the middle of the 20s and the end of the 30s. Because some ages have a low number (n), it can be driven by a few players. In this dataset, age alone doesn't explain Attack well for attackers (OH, MB, OP).
 
 ### Plot 4
 
 ```{r}
 # insert code here
+#See the relationship between serve and attack
 
-# Receive and Attack
+mydata %>%
+  filter(Position != 'L') %>%
+  ggplot(aes(x = Attack, y = Serve)) +
+  geom_point(alpha = 0.5) +
+  labs(
+    title = "Serve vs Attack",
+    x = "Attack",
+    y = "Serve"
+  )
+
+mydata %>%
+ggplot(aes(Attack, Serve, color = Position)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = FALSE)
+
 ```
 
 Interpretation:
+
+This result show that clear positive relationship that with player higher attack tend to higher serve. This scatter plot shows positive covariation between Attack and Serve.
 
 ## Push to GitHub to Submit!
 
