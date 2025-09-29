@@ -203,4 +203,5 @@ Have this done before class on Wednesday.
 
 ```{r}
 write_parquet(teds_d, here("data/teds_d_clean.parquet"))
+view(teds_d)
 ```
