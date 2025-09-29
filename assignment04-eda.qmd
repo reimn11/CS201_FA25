@@ -298,12 +298,6 @@ mydata %>%
     x = "Attack",
     y = "Serve"
   )
-
-mydata %>%
-ggplot(aes(Attack, Serve, color = Position)) +
-  geom_point(alpha = 0.6) +
-  geom_smooth(method = "lm", se = FALSE)
-
 ```
 
 Interpretation:
