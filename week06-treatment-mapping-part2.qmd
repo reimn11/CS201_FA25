@@ -11,15 +11,16 @@ editor: visual
 If you don't have the below packages, run the relevant lines here:
 
 ```{r}
-# install.packages("tidyverse")
-# install.packages("here")
-# install.packages("janitor")
-# install.packages("arrow")
-# install.packages("sf")
-# install.packages("remotes") # used to install packages from github
-# remotes::install_github("UrbanInstitute/urbnmapr") # use this to install urbnmapr
-# install.packages("naniar")
-# install.packages("ggiraph")
+install.packages("tidyverse")
+install.packages("here")
+install.packages("janitor")
+install.packages("arrow")
+install.packages("sf")
+install.packages("remotes") # used to install packages from github
+remotes::install_github("UrbanInstitute/urbnmapr") # use this to install urbnmapr
+install.packages("naniar")
+install.packages("ggiraph")
+
 ```
 
 Load libraries (all of them).
@@ -34,7 +35,11 @@ library(urbnmapr) # access to US state/country shapefiles for mapping
 library(naniar) # tools for exploring and visualizing missing data
 library(ggiraph) # makes ggplot charts interactive
 options(scipen = 99) # turns off scientific notation
+
+
 ```
+
+\
 
 ## Today's Data
 
@@ -87,10 +92,12 @@ Next, we will want to combine the `states_map` and `percent_completed_by_state` 
 
 That index will be "stfips". But what do we notice that's different between the columns that contain the "stfips" information in `percent_completed_by_state` and `states_map`? (two differences)
 
-Answer:
+Answer: variable number is different
 
 ```{r}
-
+percent_completed_by_state <- percent_completed_by_state %>%
+  mutate(state_fips = sprintf("%02d", stfips))
+view(percent_completed_by_state)
 ```
 
 ### Joining data
@@ -122,7 +129,7 @@ Make it interactive with `ggiraph`. This package works well with `ggplot2`, and 
 
 ```{r}
 completed_treatment_map_int <- ggplot(percent_completed_by_state_map) +
-  geom_sf_interactive(
+  geom_sf_interactive( 
     mapping = aes(geometry = geometry,
       fill = percentage_completed,
       tooltip = paste("State FIPS:", stfips, 
@@ -144,7 +151,22 @@ girafe(ggobj = completed_treatment_map_int) # check your spelling!
 You can customize the tooltip (to a degree). Try rounding that completed % value to 2 decimal points and add state name (because who just knows the codes)?
 
 ```{r}
+completed_treatment_map_int <- ggplot(percent_completed_by_state_map) +
+  geom_sf_interactive( 
+    mapping = aes(geometry = geometry,
+      fill = percentage_completed,
+      tooltip = paste("State:", state_abbv, 
+                      "<br>FIPS:", stfips, 
+                      "<br>Completed:", round(percentage_completed, 2), "%")),
+    color = "#ffffff",
+    size = 0.25) +
+  labs(fill = "% of Completed Treatment Episodes") +
+  coord_sf(datum = NA) +
+  theme_minimal()
 
+
+# Use `girafe` to render the interactive plot
+girafe(ggobj = completed_treatment_map_int) # check your spelling!
 
 ```
 
@@ -153,9 +175,21 @@ You can customize the tooltip (to a degree). Try rounding that completed % value
 Adding color bins, based on manual/equal interval breaks. (There are more advanced binning techniques, likes quantiles, Jenks natural breaks, standard deviations, etc.)
 
 ```{r}
-percent_completed_by_state_map <- percent_completed_by_state_map %>% 
-  mutate(percentage_bin = cut(percentage_completed, breaks=c(0, 10, 20, 30, 40, 50, 60, 70, 80)))
+# percent_completed_by_state_map <- percent_completed_by_state_map %>% 
+  #mutate(percentage_bin = cut(percentage_completed, breaks=c(0, 10, 20, 30, 40, 50, 60, 70, 80) , right = FALSE))
 
+
+# percent_completed_by_state_map <- percent_completed_by_state_map %>% 
+ # mutate(percentage_bin = cut(percentage_completed, breaks=c(0, 10, 20, 30, 40, 50, 60, 70, 80) , include.lowest = TRUE))
+
+  
+percent_completed_by_state_map <- percent_completed_by_state_map %>% 
+  mutate(percentage_bin = cut(percentage_completed, breaks=c(0, 10, 20, 30, 40, 50, 60, 70, 80) , 
+                              percentage_bin = fct_explicit_na(percentage_bin, na_level = "No data")))
+  
+  
+
+#(), (] , [), []) What is the differences them?
 # check out the column you just added
 head(percent_completed_by_state_map)
 
@@ -191,6 +225,12 @@ girafe(ggobj = percent_complete_binned_int)
 ## For Friday's Class
 
 Notice anything weird with the above?? Try to figure out how to fix the problem—you'll need it for your homework. I'll show you a solution on Friday.
+
+#(), (\] , \[), \[\]) What is the differences them?
+
+**Square brackets `[ ]`** → the endpoint **is included**
+
+**Parentheses `( )`** → the endpoint **is not included**
 
 ------------------------------------------------------------------------
 

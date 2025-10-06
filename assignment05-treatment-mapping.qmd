@@ -1,7 +1,7 @@
 ---
 title: "Assignment 5: Substance Abuse Treatment Mapping"
 subtitle: "STUDENT NAME"
-author: "Amber Camp"
+author: "Rei Miyashiro"
 date: "`r Sys.Date()`"
 format: html
 editor: visual
@@ -47,7 +47,14 @@ Make an interactive map with `ggiraph` showing the percentage of completed treat
 Hint: Break this question down into bite-sized steps, like we did in Part 2. The `freq1_d` column contains information about use at discharge. Check your denominator carefully — should it be *all cases* or *completed cases*?
 
 ```{r}
+# Calculate the percentage
+percent_completed_by_state <- teds_d %>%
+  group_by(stfips) %>% # reminder: stfips is the state code
+  summarize(total_cases = n(), # this grabs the total number of obvs
+    completed_cases = sum(reason == "Treatment completed", na.rm = TRUE)) %>% # change your "reason" code as needed
+  mutate(percentage_completed = (completed_cases / total_cases) * 100) # basic math :)
 
+summary(percent_completed_by_state)
 ```
 
 ## Question 2
