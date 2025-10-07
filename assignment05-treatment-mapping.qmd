@@ -1,6 +1,6 @@
 ---
 title: "Assignment 5: Substance Abuse Treatment Mapping"
-subtitle: "STUDENT NAME"
+subtitle: "Rei Miyashiro"
 author: "Rei Miyashiro"
 date: "`r Sys.Date()`"
 format: html
@@ -47,14 +47,67 @@ Make an interactive map with `ggiraph` showing the percentage of completed treat
 Hint: Break this question down into bite-sized steps, like we did in Part 2. The `freq1_d` column contains information about use at discharge. Check your denominator carefully — should it be *all cases* or *completed cases*?
 
 ```{r}
-# Calculate the percentage
-percent_completed_by_state <- teds_d %>%
-  group_by(stfips) %>% # reminder: stfips is the state code
-  summarize(total_cases = n(), # this grabs the total number of obvs
-    completed_cases = sum(reason == "Treatment completed", na.rm = TRUE)) %>% # change your "reason" code as needed
-  mutate(percentage_completed = (completed_cases / total_cases) * 100) # basic math :)
+# Filter just reason = Treatment completed
+completed <- teds_d %>%
+  filter(reason == "Treatment completed")
 
-summary(percent_completed_by_state)
+# Calculate no use cases / total Treatment completed cases in each state
+percent_completed_no_use_by_state <- teds_d %>%
+  group_by(stfips) %>% 
+  summarize(total_cases = n(), # this grabs the total number of obvs
+    no_use_cases = sum(freq1_d == "no use", na.rm = TRUE)) %>% # filter "no use" cases from freq1_d
+  mutate(percentage_no_use_completed = (no_use_cases / total_cases) * 100) # basic math :)
+
+percent_completed_no_use_by_state %>% 
+ select(percentage_no_use_completed)
+summary(percent_completed_no_use_by_state)
+
+# Need to bring the state map 
+states_map <- get_urbn_map(map = "states", sf = TRUE)
+head(states_map, 10)
+
+# change the format to combine state_map and percent_completed_no_use_by_state
+percent_completed_no_use_by_state <- percent_completed_no_use_by_state %>%
+  mutate(state_fips = sprintf("%02d", stfips)) 
+view(percent_completed_no_use_by_state)
+view(states_map)
+
+# join the data 
+percent_completed_no_use_by_state_map <- full_join(percent_completed_no_use_by_state,
+                          states_map,
+                          by = "state_fips") # remember the index we prepared above?
+
+# Plot the map
+# catch-all bin for NA values and assign it a category name
+extra_bin <- percent_completed_no_use_by_state_map %>% 
+  mutate(percentage_bin = cut(percentage_no_use_completed, breaks=c(0, 10, 20, 30, 40, 50, 60, 70)),
+         percentage_bin = fct_explicit_na(percentage_bin, na_level = "No Data"))
+
+
+# Build interactrive map
+no_use_map <- ggplot(extra_bin) +
+  geom_sf_interactive(
+    aes(geometry = geometry,
+      fill = percentage_bin,
+      tooltip = paste("State:", state_abbv,
+                      "<br>FIPS:", stfips,
+                      "<br>No use at Discharge:", round(percentage_no_use_completed,2), "%")), 
+    color = "#ffffff", size = 0.25) +
+  labs(fill = "% of Completed Cases with No Use at Discharge",
+       title = "Treatment Episodes Ending with No Use at Discharge",
+       subtitle = "TEDS-D Dataset (SAMHSA)") +
+  scale_fill_viridis_d(option = "mako", direction = -1) + 
+  coord_sf(datum = NA) +
+  theme_minimal() +
+  theme(panel.background = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_blank(),
+    legend.text = element_text(size = 4),
+    legend.title = element_text(size = 5),
+    strip.text = element_text(size = 4))
+
+girafe(ggobj = no_use_map)
 ```
 
 ## Question 2
@@ -70,10 +123,83 @@ Treatment outcomes can vary depending on the type of service patients receive an
 -   After making your visualizations, write a short summary (3-ish sentences) that explains the main patterns you observe. Please use full, grammatical sentences.
 
 ```{r}
+# Services outcome
+serv_outcomes <- teds_d %>%
+  group_by(services_d) %>%    
+  summarise(
+    number_all = n(),
+    total_completed = sum(reason == "Treatment completed"),
+    percentage_completed_all = ((total_completed / number_all) * 100),
+    total_no_use = sum(freq1_d == "no use"),
+    percentage_no_use = ((total_no_use / number_all) * 100),
+    percentage_no_use_completed = ((total_no_use / total_completed))
+  )
+# try to make a bar
+ggplot(serv_outcomes, aes (x = services_d, y = percentage_no_use_completed)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+   labs(title = "No Use at Discharge (of Completed) by Service Type",
+       x = "Service Type",
+       y = "Percent No Use (of Completed)") +
+  geom_col(fill = "steelblue")
+
+
+
+
+
+# lenght of stay outcome
+los_outcomes <- teds_d %>%
+  group_by(los) %>%    
+  summarise(
+    number_all = n(),
+    total_completed = sum(reason == "Treatment completed"),
+    percentage_completed_all = ((total_completed / number_all) * 100),
+    total_no_use = sum(freq1_d == "no use"),
+    percentage_no_use = ((total_no_use / number_all) * 100),
+    percentage_no_use_completed = ((total_no_use / total_completed))
+  )
+
+# line 
+ggplot(los_outcomes, aes(x = los, y = percentage_no_use_completed)) +
+  labs(title = "No Use at Discharge (of Completed) by Length of Stay",
+       x = "Length of Stay", y = "",
+       fill = "No Use % (of Completed)") +
+  geom_line()
+
+
+
+
+
+#combine them
+both_outcomes <- teds_d %>%
+  group_by(services_d, los) %>%    
+  summarise(
+    number_all = n(),
+    total_completed = sum(reason == "Treatment completed"),
+    percentage_completed_all = ((total_completed / number_all) * 100),
+    total_no_use = sum(reason == "Treatment completed" & freq1_d == "no use"),
+    percentage_no_use_completed = ((total_no_use / total_completed))
+  )
+
+# line chart to see relationship them
+ggplot(both_outcomes,
+       aes(x = los, y = percentage_no_use_completed, color = services_d)) +
+  geom_line() +
+  labs(title = "No Use at Discharge (of Completed) by LOS, colored by Service",
+       x = "Length of stay (days)", y = "% No use (of completed)", color = "Service") +
+  theme_minimal()
+
+# Using the facet to see each services
+ggplot(both_outcomes,
+       aes(x = los, y = percentage_no_use_completed, color = services_d)) +
+  geom_line() +
+  labs(title = "No Use at Discharge (of Completed) by LOS, colored by Service",
+       x = "Length of stay (days)", y = "% No use (of completed)", color = "Service") +
+  theme_minimal() +
+facet_wrap(~ services_d)
 
 ```
 
-Summary: (write here)
+Summary: Completion rates and no-use-at-discharge outcomes vary by service type. For most services types, the line slopes upward as Length of stay increase, so the patients stays longer in treatment, the more likely they are to finish treatment without using substances. Some services show steeper improvements while some are flatter (Ambulatory, detoxification and unknown) but the overall pattern is a slightly positive relationship between length of stay and completed treatment without substances.
 
 ## Push to GitHub to Submit!
 
