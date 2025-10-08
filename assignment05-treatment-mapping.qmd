@@ -130,19 +130,17 @@ serv_outcomes <- teds_d %>%
     number_all = n(),
     total_completed = sum(reason == "Treatment completed"),
     percentage_completed_all = ((total_completed / number_all) * 100),
-    total_no_use = sum(freq1_d == "no use"),
+    total_no_use = sum(reason == "Treatment completed" & freq1_d == "no use"),
     percentage_no_use = ((total_no_use / number_all) * 100),
-    percentage_no_use_completed = ((total_no_use / total_completed))
+    percentage_no_use_completed = (total_no_use / total_completed) * 100
   )
-# try to make a bar
+# try to make a bar (visualization 1)
 ggplot(serv_outcomes, aes (x = services_d, y = percentage_no_use_completed)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
    labs(title = "No Use at Discharge (of Completed) by Service Type",
        x = "Service Type",
        y = "Percent No Use (of Completed)") +
   geom_col(fill = "steelblue")
-
-
 
 
 
@@ -153,12 +151,12 @@ los_outcomes <- teds_d %>%
     number_all = n(),
     total_completed = sum(reason == "Treatment completed"),
     percentage_completed_all = ((total_completed / number_all) * 100),
-    total_no_use = sum(freq1_d == "no use"),
+    total_no_use = sum(reason == "Treatment completed" & freq1_d == "no use"),
     percentage_no_use = ((total_no_use / number_all) * 100),
-    percentage_no_use_completed = ((total_no_use / total_completed))
+    percentage_no_use_completed = (total_no_use / total_completed) * 100
   )
 
-# line 
+# line chart (visualization 2)
 ggplot(los_outcomes, aes(x = los, y = percentage_no_use_completed)) +
   labs(title = "No Use at Discharge (of Completed) by Length of Stay",
        x = "Length of Stay", y = "",
@@ -169,7 +167,7 @@ ggplot(los_outcomes, aes(x = los, y = percentage_no_use_completed)) +
 
 
 
-#combine them
+# Combine them
 both_outcomes <- teds_d %>%
   group_by(services_d, los) %>%    
   summarise(
@@ -177,10 +175,10 @@ both_outcomes <- teds_d %>%
     total_completed = sum(reason == "Treatment completed"),
     percentage_completed_all = ((total_completed / number_all) * 100),
     total_no_use = sum(reason == "Treatment completed" & freq1_d == "no use"),
-    percentage_no_use_completed = ((total_no_use / total_completed))
+    percentage_no_use_completed = (total_no_use / total_completed) * 100
   )
 
-# line chart to see relationship them
+# Line chart to see relationship them (visualization 3)
 ggplot(both_outcomes,
        aes(x = los, y = percentage_no_use_completed, color = services_d)) +
   geom_line() +
@@ -188,7 +186,7 @@ ggplot(both_outcomes,
        x = "Length of stay (days)", y = "% No use (of completed)", color = "Service") +
   theme_minimal()
 
-# Using the facet to see each services
+# Using the facet to see each services more clearly
 ggplot(both_outcomes,
        aes(x = los, y = percentage_no_use_completed, color = services_d)) +
   geom_line() +
